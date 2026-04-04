@@ -8,15 +8,13 @@ type Metadata = {
 const processedUrls = new Map() as Map<string, Metadata>;
 
 export async function getMetadata(url: string): Promise<Metadata> {
-	console.log(processedUrls);
-
-	if (!URL.canParse(url)) throw new Error("URL Is invalid \t" + url);
-
-	if (processedUrls.has(url)) {
-		return processedUrls.get(url) as Metadata;
-	}
-
 	try {
+		if (!URL.canParse(url)) throw new Error("URL Is invalid \t" + url);
+
+		if (processedUrls.has(url)) {
+			return processedUrls.get(url) as Metadata;
+		}
+
 		// Fetch the HTML content of the URL
 		const response = await fetch(url);
 		if (!response.ok) {

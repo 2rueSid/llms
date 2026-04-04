@@ -1,35 +1,46 @@
-import { createOpencodeClient } from "@opencode-ai/sdk/v2";
+import { createOpencode } from "@opencode-ai/sdk/v2";
 import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
 
-const client = createOpencodeClient();
+const { client } = await createOpencode();
 
 export async function techDigest() {
-	const {
-		storiesPerTopic,
-		showcasesPerTopic,
-		mostPopularShowcases,
-		mostPopularStories,
-	} = await getHackernews();
+	const session = await client.session.create();
 
-	// const session = await client.session.create();
-	// const sessionId = session.data?.id;
-	//
-	// if (!sessionId) throw new Error("session id is not defined");
-	// const response = await client.session.promptAsync({
-	// 	sessionID: sessionId,
-	//
-	// 	model: {
-	// 		providerID: "openai",
-	// 		modelID: "gpt-5.4",
-	// 	},
-	// 	format: {
-	// 		type: "json_schema",
-	// 		schema: {},
-	// 		retryCount: 5,
-	// 	},
-	// 	agent: "",
-	// 	parts: [],
-	// });
+	const sessionId = session.data?.id;
+
+	if (!sessionId) throw new Error("session id is not defined");
+
+	const data = await getHackernews();
+
+	const response = await client.session.prompt({
+		sessionID: sessionId,
+
+		model: {
+			providerID: "openai",
+			modelID: "gpt-5.4",
+		},
+		// format: {
+		// 	type: "json_schema",
+		// 	schema: {
+		// 		storiesPerTopic,
+		// 		showcasesPerTopic,
+		// 		mostPopularShowcases,
+		// 		mostPopularStories,
+		// 	},
+		// 	retryCount: 5,
+		// },
+		// agent: "",
+		parts: [
+			{
+				type: "text",
+				text: "Use tech-digest skill to create a tech digest based on the input JSON",
+			},
+			{
+				type: "text",
+				text: JSON.stringify(data),
+			},
+		],
+	});
 }
 
 async function getHackernews() {
