@@ -12,6 +12,8 @@ export async function techDigest() {
 
 	const data = await getHackernews();
 
+	const event = await client.event.subscribe();
+
 	const response = await client.session.prompt({
 		sessionID: sessionId,
 
@@ -19,17 +21,12 @@ export async function techDigest() {
 			providerID: "openai",
 			modelID: "gpt-5.4",
 		},
-		// format: {
-		// 	type: "json_schema",
-		// 	schema: {
-		// 		storiesPerTopic,
-		// 		showcasesPerTopic,
-		// 		mostPopularShowcases,
-		// 		mostPopularStories,
-		// 	},
-		// 	retryCount: 5,
-		// },
-		// agent: "",
+		format: {
+			type: "json_schema",
+			schema: { markdown: "string" },
+			retryCount: 5,
+		},
+		agent: "",
 		parts: [
 			{
 				type: "text",
@@ -41,6 +38,11 @@ export async function techDigest() {
 			},
 		],
 	});
+
+	console.log(response.data?.info.structured);
+	console.log("\n\n\n\n");
+
+	console.log(response.data?.info);
 }
 
 async function getHackernews() {
