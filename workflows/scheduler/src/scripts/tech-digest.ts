@@ -1,52 +1,52 @@
-import { createOpencode } from "@opencode-ai/sdk/v2";
+import { streamResponse } from "../codex";
+import type { Delivery } from "../delivery";
+import { techDigestLogger } from "../logger";
 import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
 
-const { client } = await createOpencode();
+export async function techDigest(delivery: Delivery) {
+	const hnData = await getHackernews();
 
-export async function techDigest() {
-	const session = await client.session.create();
+	const totalLen = Object.values(hnData).reduce(
+		(acc, v) => acc + v?.length || 0,
+		0,
+	);
 
-	const sessionId = session.data?.id;
+	if (!totalLen) {
+		techDigestLogger.warning("No news found from Hacker News");
+		return;
+	}
+	techDigestLogger.info(`Total articles to process: ${totalLen}`);
 
-	if (!sessionId) throw new Error("session id is not defined");
+	techDigestLogger.info(
+		`Tech Digest Data: mostPopularShowcases: ${hnData.mostPopularShowcases.length}; mostPopularStories: ${hnData.mostPopularStories.length}; showcasesPerTopic: ${hnData.showcasesPerTopic.length}; storiesPerTopic: ${hnData.storiesPerTopic.length}`,
+	);
 
-	const data = await getHackernews();
+	const { data } = await streamResponse([
+		{ type: "text", text: "use tech-digest SKILL to create a tech-digest" },
+		{ type: "text", text: JSON.stringify(hnData) },
+	]);
 
-	const event = await client.event.subscribe();
+	if (!data) {
+		techDigestLogger.warning("No digest content returned from model");
+		return;
+	}
 
-	const response = await client.session.prompt({
-		sessionID: sessionId,
+	techDigestLogger.info(`Digest generated: ${data.length} characters`);
 
-		model: {
-			providerID: "openai",
-			modelID: "gpt-5.4",
-		},
-		format: {
-			type: "json_schema",
-			schema: { markdown: "string" },
-			retryCount: 5,
-		},
-		agent: "",
-		parts: [
-			{
-				type: "text",
-				text: "Use tech-digest skill to create a tech digest based on the input JSON",
-			},
-			{
-				type: "text",
-				text: JSON.stringify(data),
-			},
-		],
-	});
+	const outputName = `tech-digest-${new Date().toISOString().slice(0, 10)}`;
+	const delivered = await delivery.deliver(data, outputName);
 
-	console.log(response.data?.info.structured);
-	console.log("\n\n\n\n");
+	if (!delivered) {
+		techDigestLogger.error("Failed to write digest to destination");
+		return;
+	}
 
-	console.log(response.data?.info);
+	techDigestLogger.info(`Data is stored as ${outputName}.md`);
 }
 
 async function getHackernews() {
 	const topics = ["Rust", "AWS", "Ukraine", "Drones", "Miltech"];
+
 	const oneDayAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
 
 	const limitPerTopic = 5;
@@ -57,23 +57,20 @@ async function getHackernews() {
 		oneDayAgo,
 		limitPerTopic,
 	);
+
 	const showcasesPerTopic = await fetchPostsForTopics(
 		"show_hn",
 		topics,
 		oneDayAgo,
 		limitPerTopic,
 	);
-	const mostPopularStories = await fetchPosts(
-		"story",
-		undefined,
-		oneDayAgo,
-		15,
-	);
+	const mostPopularStories = await fetchPosts("story", undefined, oneDayAgo, 5);
+
 	const mostPopularShowcases = await fetchPosts(
 		"show_hn",
 		undefined,
 		oneDayAgo,
-		15,
+		5,
 	);
 
 	return {

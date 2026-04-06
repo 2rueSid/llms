@@ -5,6 +5,8 @@ description: Create a polished, emoji-enhanced Markdown tech digest from a provi
 
 # Tech Digest Skill
 
+**!!!CRITICAL -- RETURN A VALID MARKDOWN DOCUMENT!!!!!**
+
 ## Purpose
 
 Turn a structured Hacker News payload into a polished, readable Markdown tech digest that is quick to scan and pleasant to read.
@@ -96,3 +98,5 @@ Make the digest eye-catching but still clean:
 ## References
 
 - `references/input-output-exampl.md`
+
+**!!!CRITICAL -- RETURN A VALID MARKDOWN DOCUMENT!!!!!**

@@ -36,10 +36,18 @@
 // (async () => {
 // 	await exec();
 
+import { FSDelivery } from "./delivery";
+import { initLogger } from "./logger";
 import { fetchPosts, fetchPostsForTopics } from "./scripts/fetch-hackernews";
 import { techDigest } from "./scripts/tech-digest";
 
 // })();
 (async () => {
-	await techDigest();
+	await initLogger();
+
+	const delivery = new FSDelivery(
+		"/Users/2ruesid/workbench/notes/tech-digest",
+		"markdown",
+	);
+	await techDigest(delivery);
 })();
