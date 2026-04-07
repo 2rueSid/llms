@@ -6,7 +6,8 @@
 	"scripts": {
 		"check": "biome check",
 		"fix": "biome check --fix",
-		"dev": "bun run src/index.ts --watch"
+		"dev": "bun run src/index.ts --watch",
+		"cli": "bun run src/index.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.10",

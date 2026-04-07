@@ -178,3 +178,4 @@ pyrightconfig.json
 .agents
 node_modules/
 .devbox
+.codex
