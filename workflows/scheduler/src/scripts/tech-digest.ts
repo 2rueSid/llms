@@ -11,6 +11,8 @@ export async function techDigest(delivery: Delivery) {
 		0,
 	);
 
+	console.log(hnData);
+
 	if (!totalLen) {
 		techDigestLogger.warning("No news found from Hacker News");
 		return;
@@ -24,6 +26,10 @@ export async function techDigest(delivery: Delivery) {
 	const { data } = await streamResponse([
 		{ type: "text", text: "use tech-digest SKILL to create a tech-digest" },
 		{ type: "text", text: JSON.stringify(hnData) },
+		{
+			type: "text",
+			text: "use send notification skill with skip frontmost flag set to true to send me a system notification, that operation is completed",
+		},
 	]);
 
 	if (!data) {
@@ -45,7 +51,7 @@ export async function techDigest(delivery: Delivery) {
 }
 
 async function getHackernews() {
-	const topics = ["Rust", "AWS", "Ukraine", "Drones", "Miltech"];
+	const topics = ["Rust", "War", "AWS", "Ukraine", "Drones", "Miltech"];
 
 	const oneDayAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
 
@@ -64,13 +70,18 @@ async function getHackernews() {
 		oneDayAgo,
 		limitPerTopic,
 	);
-	const mostPopularStories = await fetchPosts("story", undefined, oneDayAgo, 5);
+	const mostPopularStories = await fetchPosts(
+		"story",
+		undefined,
+		oneDayAgo,
+		20,
+	);
 
 	const mostPopularShowcases = await fetchPosts(
 		"show_hn",
 		undefined,
 		oneDayAgo,
-		5,
+		20,
 	);
 
 	return {

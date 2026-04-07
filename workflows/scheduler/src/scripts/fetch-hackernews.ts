@@ -38,6 +38,7 @@ type HNPost = {
 	id: string;
 	title: string;
 	url: string | null;
+	ogURL: string;
 	author: string;
 	points: number;
 	comments: number;
@@ -115,6 +116,7 @@ function mapHitToPost(hit: HNHit, topic?: string): HNPost {
 	return {
 		id: hit.objectID,
 		title: hit.title ?? "Untitled",
+		ogURL: `https://news.ycombinator.com/item?id=${hit.objectID}`,
 		url: hit.url,
 		author: hit.author,
 		points: hit.points,
