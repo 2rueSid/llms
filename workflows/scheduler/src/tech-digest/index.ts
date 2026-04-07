@@ -1,6 +1,6 @@
 import { streamResponse } from "../codex";
-import type { Delivery } from "../delivery";
-import { techDigestLogger } from "../logger";
+import { type Delivery, FSDelivery } from "../delivery";
+import { initLogger, techDigestLogger } from "../logger";
 import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
 
 export async function techDigest(delivery: Delivery) {
@@ -17,6 +17,7 @@ export async function techDigest(delivery: Delivery) {
 		techDigestLogger.warning("No news found from Hacker News");
 		return;
 	}
+
 	techDigestLogger.info(`Total articles to process: ${totalLen}`);
 
 	techDigestLogger.info(
@@ -26,10 +27,10 @@ export async function techDigest(delivery: Delivery) {
 	const { data } = await streamResponse([
 		{ type: "text", text: "use tech-digest SKILL to create a tech-digest" },
 		{ type: "text", text: JSON.stringify(hnData) },
-		{
-			type: "text",
-			text: "use send notification skill with skip frontmost flag set to true to send me a system notification, that operation is completed",
-		},
+		// {
+		// 	type: "text",
+		// 	text: "use send notification skill with skip frontmost flag set to true to send me a system notification, that operation is completed",
+		// },
 	]);
 
 	if (!data) {
@@ -91,3 +92,14 @@ async function getHackernews() {
 		mostPopularStories,
 	};
 }
+
+(async () => {
+	await initLogger();
+
+	const delivery = new FSDelivery(
+		"/Users/2ruesid/workbench/notes/tech-digest",
+		"markdown",
+	);
+
+	await techDigest(delivery);
+})();
