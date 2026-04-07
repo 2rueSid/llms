@@ -1,6 +1,7 @@
 import { command, exec } from "./cli";
 import { Task, withDatabase } from "./database";
 import { cliLogger, initLogger } from "./logger";
+import { runSchedulerLoop } from "./scheduler";
 
 const HELP_TEXT = `Scheduler DB CLI
 
@@ -39,6 +40,10 @@ command("help", async () => {
 	console.log(HELP_TEXT);
 });
 
+command("loop", async () => {
+	await runSchedulerLoop();
+});
+
 command(
 	"add-task",
 	async ({ name, command: taskCommand, cron }) => {
@@ -53,7 +58,7 @@ command(
 					command: taskCommand,
 					enabled: 1,
 					cron,
-					next_execution: null,
+					next_execution: Bun.cron.parse(cron)?.toISOString(),
 					last_execution: null,
 				}),
 			);

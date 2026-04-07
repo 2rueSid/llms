@@ -8,6 +8,12 @@ import {
 	Task as TaskSchema,
 } from "./models";
 
+type MarkTaskResultInput = {
+	history: ExecutionHistory;
+	lastExecution: string;
+	nextExecution: string | null;
+};
+
 export * from "./models";
 
 const DEFAULT_DB_FILE = "scheduler.db";
@@ -58,8 +64,39 @@ export const initDatabase = () => {
 	const listExecutionHistoryStmt = db.query(
 		"SELECT id, task_id, execution_date, success FROM execution_history",
 	);
+	const listDueTasksStmt = db.query(
+		`SELECT id, name, command, enabled, cron, next_execution, last_execution
+		 FROM tasks
+		 WHERE enabled = 1
+		   AND next_execution IS NOT NULL
+		   AND next_execution <= ?
+		 ORDER BY next_execution ASC`,
+	);
 	const addHistoryRecordStmt = db.query(
 		"INSERT INTO execution_history (id, task_id, execution_date, success) VALUES (?, ?, ?, ?)",
+	);
+	const claimTaskStmt = db.query(
+		`UPDATE tasks
+		 SET next_execution = NULL
+		 WHERE id = ?
+		   AND enabled = 1
+		   AND (
+			 (? IS NULL AND next_execution IS NULL)
+			 OR next_execution = ?
+		   )`,
+	);
+	const updateTaskExecutionStmt = db.query(
+		"UPDATE tasks SET last_execution = ?, next_execution = ? WHERE id = ?",
+	);
+	const scheduleTaskStmt = db.query(
+		`UPDATE tasks
+		 SET next_execution = ?
+		 WHERE id = ?
+		   AND enabled = 1
+		   AND (
+			 (? IS NULL AND next_execution IS NULL)
+			 OR next_execution = ?
+		   )`,
 	);
 	const deleteTaskStmt = db.query("DELETE FROM tasks WHERE id = ?");
 	const toggleTaskStmt = db.query(
@@ -123,6 +160,112 @@ export const initDatabase = () => {
 				return history;
 			} catch (error) {
 				databaseLogger.error(`Failed to list execution history: ${error}`);
+				throw error;
+			}
+		},
+		listDueTasks: (nowIso: string): Task[] => {
+			try {
+				databaseLogger.debug(`Listing due tasks at ${nowIso}`);
+				const rows = listDueTasksStmt.all(nowIso) as unknown[];
+				const tasks = TaskSchema.array().parse(rows);
+
+				databaseLogger.info(`Loaded ${tasks.length} due tasks`);
+				return tasks;
+			} catch (error) {
+				databaseLogger.error(`Failed to list due tasks at ${nowIso}: ${error}`);
+				throw error;
+			}
+		},
+		claimTask: (id: string, expectedNextExecution: string | null): boolean => {
+			try {
+				databaseLogger.debug(
+					`Claiming task ${id} for next_execution ${expectedNextExecution ?? "null"}`,
+				);
+				const result = claimTaskStmt.run(
+					id,
+					expectedNextExecution,
+					expectedNextExecution,
+				) as { changes?: number };
+				const claimed = (result.changes ?? 0) > 0;
+
+				if (claimed) {
+					databaseLogger.info(`Task claimed ${id}`);
+				} else {
+					databaseLogger.debug(`Task claim missed ${id}`);
+				}
+
+				return claimed;
+			} catch (error) {
+				databaseLogger.error(`Failed to claim task ${id}: ${error}`);
+				throw error;
+			}
+		},
+		markTaskResult: ({
+			history,
+			lastExecution,
+			nextExecution,
+		}: MarkTaskResultInput) => {
+			try {
+				databaseLogger.debug(
+					`Marking result for task ${history.task_id} with history ${history.id}`,
+				);
+				db.exec("BEGIN IMMEDIATE");
+
+				try {
+					addHistoryRecordStmt.run(
+						history.id,
+						history.task_id,
+						history.execution_date,
+						history.success,
+					);
+					updateTaskExecutionStmt.run(
+						lastExecution,
+						nextExecution,
+						history.task_id,
+					);
+
+					db.exec("COMMIT");
+				} catch (error) {
+					db.exec("ROLLBACK");
+					throw error;
+				}
+
+				databaseLogger.info(
+					`Marked result for task ${history.task_id} with history ${history.id}`,
+				);
+			} catch (error) {
+				databaseLogger.error(
+					`Failed to mark result for task ${history.task_id} with history ${history.id}: ${error}`,
+				);
+				throw error;
+			}
+		},
+		scheduleTask: (
+			id: string,
+			expectedNextExecution: string | null,
+			nextExecution: string,
+		): boolean => {
+			try {
+				databaseLogger.debug(
+					`Scheduling task ${id} from ${expectedNextExecution ?? "null"} to ${nextExecution}`,
+				);
+				const result = scheduleTaskStmt.run(
+					nextExecution,
+					id,
+					expectedNextExecution,
+					expectedNextExecution,
+				) as { changes?: number };
+				const scheduled = (result.changes ?? 0) > 0;
+
+				if (scheduled) {
+					databaseLogger.info(`Task scheduled ${id} for ${nextExecution}`);
+				} else {
+					databaseLogger.debug(`Task schedule missed ${id}`);
+				}
+
+				return scheduled;
+			} catch (error) {
+				databaseLogger.error(`Failed to schedule task ${id}: ${error}`);
 				throw error;
 			}
 		},

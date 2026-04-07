@@ -1,89 +1,170 @@
-import { appendFile } from "node:fs/promises";
-import path from "node:path";
+import { sleep } from "bun";
+import type { ExecutionHistory, Task } from "./database";
+import { withDatabase } from "./database";
+import { schedulerLogger } from "./logger";
 
-const cronschedule = "*/1 * * * *"; // every minute
+const INTERVAL_MS = 5000;
 
-const testfn = () => {
-	appendFile(path.join(__dirname, "test.txt"), `${Date.now()}`, "utf8");
+const computeNextExecution = (task: Task, from: Date): string | null => {
+	const next = Bun.cron.parse(task.cron, from);
+
+	if (!next) {
+		schedulerLogger.error(
+			`Task '${task.id}' has no future cron occurrence: '${task.cron}'`,
+		);
+		return null;
+	}
+
+	return next.toISOString();
 };
 
-const tasks = [
-	{
-		expression: cronschedule,
-		nextRun: null,
-		cb: testfn,
-		previousRun: null,
-		log: [],
-	},
-];
+const executeTask = async (task: Task): Promise<boolean> => {
+	schedulerLogger.info(`Executing task '${task.id}' (${task.name})`);
 
-setInterval(() => {
-	console.log("tick");
-	for (const task of tasks) {
-		console.log(task);
+	const proc = Bun.spawn({
+		cmd: ["/bin/sh", "-lc", task.command],
+		stdout: "pipe",
+		stderr: "pipe",
+	});
 
-		const next = Bun.cron.parse(task.expression);
+	const [exitCode, stdout, stderr] = await Promise.all([
+		proc.exited,
+		new Response(proc.stdout).text(),
+		new Response(proc.stderr).text(),
+	]);
 
-		// if the previous run is not defined - schedule a new run
-		if (!task.previousRun && !task.nextRun) {
-			console.log("both prev & next not defined scheduling a new run...");
-			tasks[0].nextRun = next;
-			continue;
-		}
-
-		// If not next run is not defined - create a next run and return
-		if (!task.nextRun) {
-			console.log("next run is not defined scheduling a new run...");
-
-			tasks[0].nextRun = Bun.cron.parse(task.expression);
-			continue;
-		}
-
-		// if previous run is not defined and current date is bigger than the next date -- execute
-		// if current date is smaller than the next date and previous date is not defined -- return
-		// if current date is bigger than the previous date && smaller than the next run -- return
-		// if current date is bigger than the previous date and bigger thatn the next run -- run cb
-
-		const now = new Date();
-		console.log(now);
-
-		if (!task.previousRun && now > task.nextRun) {
-			console.log(
-				"previous run is not defined and it's time to execute next run...",
-			);
-			setTimeout(() => {
-				task.cb();
-				tasks[0].previousRun = now;
-				tasks[0].nextRun = Bun.cron.parse(task.expression);
-				task.log.push(tasks[0]?.previousRun);
-			}, 0);
-		}
-
-		if (!task.previousRun && now < task.nextRun) {
-			console.log(
-				"previous run is not defined and it's not yet time to execute next run...",
-			);
-
-			continue;
-		}
-
-		if (task.previousRun < now && now < task.nextRun) {
-			console.log(
-				"previous run is defined but it's not yet time to execute next run...",
-			);
-
-			continue;
-		}
-
-		if (task.previousRun < now && now >= task.nextRun) {
-			console.log("it's time to execute task...");
-
-			setTimeout(() => {
-				task.cb();
-				tasks[0].previousRun = now;
-				tasks[0].nextRun = Bun.cron.parse(task.expression);
-				task.log.push(tasks[0]?.previousRun);
-			}, 0);
-		}
+	if (stdout.trim()) {
+		schedulerLogger.debug(`Task '${task.id}' stdout: ${stdout.trim()}`);
 	}
-}, 1000); // every second
+
+	if (stderr.trim()) {
+		schedulerLogger.warn(`Task '${task.id}' stderr: ${stderr.trim()}`);
+	}
+
+	if (exitCode !== 0) {
+		schedulerLogger.error(
+			`Task '${task.id}' failed with exit code ${exitCode}`,
+		);
+		return false;
+	}
+
+	schedulerLogger.info(`Task '${task.id}' completed successfully`);
+	return true;
+};
+
+async function schedulerLoop(cb: () => Promise<void>, signal: AbortSignal) {
+	while (!signal.aborted) {
+		const startedAt = Date.now();
+
+		try {
+			await cb();
+		} catch (error) {
+			schedulerLogger.error(`Scheduler tick failed: ${error}`);
+		}
+
+		const elapsed = Date.now() - startedAt;
+		const wait = Math.max(0, INTERVAL_MS - elapsed);
+		await sleep(wait);
+	}
+}
+
+const scheduleUninitializedTasks = async (now: Date) => {
+	const tasks = await withDatabase("scheduler-list-tasks", (db) =>
+		db.listTasks(),
+	);
+
+	for (const task of tasks) {
+		if (!task.enabled || task.next_execution) {
+			continue;
+		}
+
+		const nextExecution = computeNextExecution(task, now);
+
+		if (!nextExecution) {
+			continue;
+		}
+
+		await withDatabase("scheduler-schedule-task", (db) =>
+			db.scheduleTask(task.id, null, nextExecution),
+		);
+	}
+};
+
+const processDueTasks = async (now: Date) => {
+	const nowIso = now.toISOString();
+	const dueTasks = await withDatabase("scheduler-list-due-tasks", (db) =>
+		db.listDueTasks(nowIso),
+	);
+
+	if (dueTasks.length === 0) {
+		return;
+	}
+
+	schedulerLogger.info(`Found ${dueTasks.length} due task(s)`);
+
+	for (const task of dueTasks) {
+		const claimed = await withDatabase("scheduler-claim-task", (db) =>
+			db.claimTask(task.id, task.next_execution),
+		);
+
+		if (!claimed) {
+			schedulerLogger.debug(`Task '${task.id}' was claimed by another worker`);
+			continue;
+		}
+
+		const executionTime = new Date();
+		const executionIso = executionTime.toISOString();
+		let success = false;
+
+		try {
+			success = await executeTask(task);
+		} catch (error) {
+			schedulerLogger.error(
+				`Task '${task.id}' crashed during execution: ${error}`,
+			);
+		}
+
+		const nextExecution = computeNextExecution(task, executionTime);
+		const history: ExecutionHistory = {
+			id: crypto.randomUUID(),
+			task_id: task.id,
+			execution_date: executionIso,
+			success: success ? 1 : 0,
+		};
+
+		await withDatabase("scheduler-mark-task-result", (db) =>
+			db.markTaskResult({
+				history,
+				lastExecution: executionIso,
+				nextExecution,
+			}),
+		);
+	}
+};
+
+export const runSchedulerLoop = async () => {
+	const controller = new AbortController();
+	const stop = () => {
+		if (!controller.signal.aborted) {
+			schedulerLogger.info("Shutdown signal received, stopping scheduler loop");
+			controller.abort();
+		}
+	};
+
+	process.on("SIGINT", stop);
+	process.on("SIGTERM", stop);
+
+	schedulerLogger.info("Scheduler initialized, starting event loop");
+
+	try {
+		await schedulerLoop(async () => {
+			const now = new Date();
+			await scheduleUninitializedTasks(now);
+			await processDueTasks(now);
+		}, controller.signal);
+	} finally {
+		process.off("SIGINT", stop);
+		process.off("SIGTERM", stop);
+		schedulerLogger.info("Scheduler loop stopped");
+	}
+};
