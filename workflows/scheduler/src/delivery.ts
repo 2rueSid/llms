@@ -1,13 +1,16 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
+import { fetch } from "bun";
+import { cliLogger } from "./logger";
 
 export type DeliveryFormat = "markdown" | "plain";
 
 export abstract class Delivery {
 	readonly destination: string;
 	readonly type: DeliveryFormat;
+	readonly apiUrl?: string;
 
-	protected constructor(destination: string, type: DeliveryFormat) {
+	constructor(destination: string, type: DeliveryFormat) {
 		if (!destination.trim()) {
 			throw new Error("Delivery destination must not be empty");
 		}
@@ -19,11 +22,44 @@ export abstract class Delivery {
 	abstract deliver(content: string, title: string): Promise<boolean>;
 }
 
-export class FSDelivery extends Delivery {
-	constructor(destination: string, type: DeliveryFormat) {
-		super(destination, type);
-	}
+export class DiscordDelivery extends Delivery {
+	override async deliver(content: string, _title: string): Promise<boolean> {
+		if (!this.destination) throw new Error(`Discord API Token is not set`);
 
+		const totalLen = content.length;
+		const discordLimit = 2000;
+
+		const chunks = [] as string[];
+
+		for (let chunk = 0; chunk < totalLen; chunk += discordLimit) {
+			chunks.push(content.slice(chunk, chunk + discordLimit));
+		}
+
+		console.log(chunks.length);
+		console.log(this.destination);
+
+		try {
+			for await (const chunk of chunks) {
+				await fetch(this.destination, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						content: chunk,
+					}),
+				});
+			}
+			return true;
+		} catch (err) {
+			cliLogger.warning(`Error: ${err}`);
+
+			return false;
+		}
+	}
+}
+
+export class FSDelivery extends Delivery {
 	override async deliver(content: string, title: string): Promise<boolean> {
 		const outputPath = this.getOutputPath(title);
 

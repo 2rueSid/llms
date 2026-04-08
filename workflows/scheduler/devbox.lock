@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "_1password-cli@latest": {
+      "last_modified": "2026-03-27T11:17:38Z",
+      "resolved": "github:NixOS/nixpkgs/832efc09b4caf6b4569fbf9dc01bec3082a00611#_1password-cli",
+      "source": "devbox-search",
+      "version": "2.33.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/b60b9qbyil6cbbzhrmcb3ff4f1rdi35c-1password-cli-2.33.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/b60b9qbyil6cbbzhrmcb3ff4f1rdi35c-1password-cli-2.33.1"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/xladddjlm80wxgbnk3jiskkscxsq9mi1-1password-cli-2.33.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/xladddjlm80wxgbnk3jiskkscxsq9mi1-1password-cli-2.33.1"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/479nlflivw6fj2v8in0m8z8w31mybm2g-1password-cli-2.33.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/479nlflivw6fj2v8in0m8z8w31mybm2g-1password-cli-2.33.1"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/8707q57zj6km57n27ky8f92b30l6dgaa-1password-cli-2.33.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/8707q57zj6km57n27ky8f92b30l6dgaa-1password-cli-2.33.1"
+        }
+      }
+    },
     "bun@latest": {
       "last_modified": "2026-03-27T11:17:38Z",
       "resolved": "github:NixOS/nixpkgs/832efc09b4caf6b4569fbf9dc01bec3082a00611#bun",

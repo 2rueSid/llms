@@ -1,10 +1,15 @@
 {
 	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.0/.schema/devbox.schema.json",
-	"packages": ["bun@latest"],
+	"packages": ["bun@latest", "_1password-cli@latest"],
+	"env": {
+		"DISCORD_WEBHOOK": "op://Personal/discord-app/webhook-url"
+	},
 	"shell": {
 		"init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
 		"scripts": {
-			"test": ["echo \"Error: no test specified\" && exit 1"]
+			"injected": "op run -- \"$@\"",
+			"scheduler": "devbox run injected -- bun run src/index.ts",
+			"start_loop": "devbox run scheduler -- loop"
 		}
 	}
 }

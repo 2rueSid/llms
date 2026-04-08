@@ -1,9 +1,9 @@
 import { streamResponse } from "../codex";
-import { type Delivery, FSDelivery } from "../delivery";
+import { type Delivery, DiscordDelivery, FSDelivery } from "../delivery";
 import { initLogger, techDigestLogger } from "../logger";
 import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
 
-export async function techDigest(delivery: Delivery) {
+export async function techDigest(delivery: Delivery[]) {
 	const hnData = await getHackernews();
 
 	const totalLen = Object.values(hnData).reduce(
@@ -40,15 +40,15 @@ export async function techDigest(delivery: Delivery) {
 
 	techDigestLogger.info(`Digest generated: ${data.length} characters`);
 
-	const outputName = `tech-digest-${new Date().toISOString().slice(0, 10)}`;
-	const delivered = await delivery.deliver(data, outputName);
-
-	if (!delivered) {
-		techDigestLogger.error("Failed to write digest to destination");
-		return;
+	for await (const transport of delivery) {
+		const outputName = `tech-digest-${new Date().toISOString().slice(0, 10)}`;
+		const delivered = await transport.deliver(data, outputName);
+		if (!delivered) {
+			techDigestLogger.error("Failed to write digest to destination");
+			continue;
+		}
+		techDigestLogger.info(`Data is stored as ${outputName}.md`);
 	}
-
-	techDigestLogger.info(`Data is stored as ${outputName}.md`);
 }
 
 async function getHackernews() {
@@ -96,10 +96,15 @@ async function getHackernews() {
 (async () => {
 	await initLogger();
 
-	const delivery = new FSDelivery(
+	const fsDelivery = new FSDelivery(
 		"/Users/2ruesid/workbench/notes/tech-digest",
 		"markdown",
 	);
 
-	await techDigest(delivery);
+	const discordDelivery = new DiscordDelivery(
+		Bun.env.DISCORD_WEBHOOK ?? "",
+		"markdown",
+	);
+
+	await techDigest([fsDelivery, discordDelivery]);
 })();
