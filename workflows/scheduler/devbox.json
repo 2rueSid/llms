@@ -2,7 +2,8 @@
 	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.0/.schema/devbox.schema.json",
 	"packages": ["bun@latest", "_1password-cli@latest"],
 	"env": {
-		"DISCORD_WEBHOOK": "op://Personal/discord-app/webhook-url"
+		"DISCORD_WEBHOOK": "op://Personal/discord-app/webhook-url",
+		"DISCORD_REMINDER_WEBHOOK": "op://Personal/discord-app/warlord-url"
 	},
 	"shell": {
 		"init_hook": ["echo 'Welcome to devbox!' > /dev/null"],

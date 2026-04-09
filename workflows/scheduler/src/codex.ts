@@ -1,4 +1,5 @@
 import { Codex, type UserInput } from "@openai/codex-sdk";
+import type { ZodType } from "zod";
 import { schedulerLogger } from "./logger";
 
 const codex = new Codex();
@@ -11,7 +12,6 @@ export async function streamResponse(input: UserInput[]): Promise<response> {
 	const thread = codex.startThread();
 
 	const { events } = await thread.runStreamed(input);
-
 	let response: string | null = null;
 
 	for await (const event of events) {

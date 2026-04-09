@@ -35,9 +35,6 @@ export class DiscordDelivery extends Delivery {
 			chunks.push(content.slice(chunk, chunk + discordLimit));
 		}
 
-		console.log(chunks.length);
-		console.log(this.destination);
-
 		try {
 			for await (const chunk of chunks) {
 				await fetch(this.destination, {
