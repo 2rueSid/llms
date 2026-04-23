@@ -1,13 +1,12 @@
 import { mkdir, readFile } from "node:fs/promises";
-import { homedir } from "node:os";
+import { streamResponse } from "@lib/codex";
+import { DiscordDelivery, FSDelivery } from "@lib/delivery";
+import { Config } from "@shared/config";
+import { initLogger, reminderLogger } from "@shared/logger";
 import { DateTime } from "luxon";
 import z from "zod";
-import { streamResponse } from "../codex";
-import { DiscordDelivery, FSDelivery } from "../delivery";
-import { initLogger, reminderLogger } from "../logger";
 
-const TIMEZONE = "America/New_York";
-const TODO_DIR = `${homedir()}/workbench/notes/todos/`;
+const TODO_DIR = Config.TODO_DIRECTORY;
 
 type LLMRequest = {
 	todo?: string;
@@ -40,7 +39,7 @@ async function process(now: DateTime): Promise<OutputItem[] | null> {
 
 	const llmRequest: LLMRequest = {
 		now: now.toISO() ?? now.toString(),
-		timezone: TIMEZONE,
+		timezone: Config.TIMEZONE,
 		create: false,
 		todo: undefined,
 	};
@@ -83,7 +82,7 @@ async function process(now: DateTime): Promise<OutputItem[] | null> {
 (async () => {
 	await initLogger();
 
-	const now = DateTime.now().setZone(TIMEZONE);
+	const now = DateTime.now().setZone(Config.TIMEZONE);
 	const todayFilename = getTodoFilename(now);
 
 	const fsDelivery = new FSDelivery(TODO_DIR, "markdown");

@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import path from "node:path";
-import { databaseLogger } from "../logger";
+import { Config } from "@shared/config";
+import { databaseLogger } from "@shared/logger";
 import {
 	type ExecutionHistory,
 	ExecutionHistory as ExecutionHistorySchema,
@@ -16,9 +17,9 @@ type MarkTaskResultInput = {
 
 export * from "./models";
 
-const DEFAULT_DB_FILE = "scheduler.db";
+const DEFAULT_DB_FILE = Config.DEFAULT_DB_FILE;
 
-const getDefaultDatabasePath = () => path.join(process.cwd(), DEFAULT_DB_FILE);
+const getDefaultDatabasePath = () => path.join(Config.DB_PATH, DEFAULT_DB_FILE);
 
 const createTables = (db: Database) => {
 	db.exec("PRAGMA foreign_keys = ON;");

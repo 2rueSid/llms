@@ -1,10 +1,11 @@
+import { Config } from "@shared/config";
+import { schedulerLogger } from "@shared/logger";
 import { sleep } from "bun";
 import type { ExecutionHistory, Task } from "./database";
 import { withDatabase } from "./database";
-import { schedulerLogger } from "./logger";
 
-const INTERVAL_MS = 1000 * 60; // every minute
-const TASK_TIMEOUT = 1000 * 60 * 10; // 10 minutes
+const INTERVAL_MS = Config.RUN_INTERVAL;
+const TASK_TIMEOUT = Config.TASK_TIMEOUT;
 const RunningTasks = new Map<string, Promise<void>>();
 
 export async function runSchedulerLoop() {

@@ -1,6 +1,6 @@
-import { command, exec } from "./cli";
+import { command, exec } from "@lib/cli";
+import { cliLogger, initLogger } from "@shared/logger";
 import { Task, withDatabase } from "./database";
-import { cliLogger, initLogger } from "./logger";
 import { runSchedulerLoop } from "./scheduler";
 
 const HELP_TEXT = `Scheduler DB CLI

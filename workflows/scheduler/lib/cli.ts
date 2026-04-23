@@ -1,5 +1,5 @@
 import { parseArgs } from "node:util";
-import { cliLogger } from "./logger";
+import { cliLogger } from "@shared/logger";
 
 type CLIArgument = {
 	name: string;

@@ -11,10 +11,11 @@
 //
 
 import { stringify as querystring } from "node:querystring";
+import { Config } from "@shared/config";
 import { fetch } from "bun";
 import { getMetadata } from "./fetch-page-metadata";
 
-const HN_API_BASE_URL = "https://hn.algolia.com/api/v1/search";
+const HN_API_BASE_URL = Config.HN_API_BASE_URL;
 
 type HNTag = "story" | "show_hn" | "ask_hn";
 

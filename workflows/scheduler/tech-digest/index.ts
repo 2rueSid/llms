@@ -1,6 +1,7 @@
-import { streamResponse } from "../codex";
-import { type Delivery, DiscordDelivery, FSDelivery } from "../delivery";
-import { initLogger, techDigestLogger } from "../logger";
+import { streamResponse } from "@lib/codex";
+import { type Delivery, DiscordDelivery, FSDelivery } from "@lib/delivery";
+import { Config } from "@shared/config";
+import { initLogger, techDigestLogger } from "@shared/logger";
 import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
 
 export async function techDigest(delivery: Delivery[]) {
@@ -25,12 +26,11 @@ export async function techDigest(delivery: Delivery[]) {
 	);
 
 	const { data } = await streamResponse([
-		{ type: "text", text: "use tech-digest SKILL to create a tech-digest" },
+		{
+			type: "text",
+			text: `use ${Config.TECH_DIGEST_SKILL_NAME} SKILL to create a tech-digest. RETURN MARKDOWN FORMATTED DIGEST.`,
+		},
 		{ type: "text", text: JSON.stringify(hnData) },
-		// {
-		// 	type: "text",
-		// 	text: "use send notification skill with skip frontmost flag set to true to send me a system notification, that operation is completed",
-		// },
 	]);
 
 	if (!data) {
@@ -52,11 +52,12 @@ export async function techDigest(delivery: Delivery[]) {
 }
 
 async function getHackernews() {
-	const topics = ["Rust", "War", "AWS", "Ukraine", "Drones", "Miltech"];
+	const topics = Config.DIGEST_TOPICS;
 
 	const oneDayAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
 
-	const limitPerTopic = 5;
+	const limitPerTopic = Config.LIMIT_PER_TOPIC;
+	const limitPerCategory = Config.LIMIT_PER_CATEGORY;
 
 	const storiesPerTopic = await fetchPostsForTopics(
 		"story",
@@ -75,14 +76,14 @@ async function getHackernews() {
 		"story",
 		undefined,
 		oneDayAgo,
-		20,
+		limitPerCategory,
 	);
 
 	const mostPopularShowcases = await fetchPosts(
 		"show_hn",
 		undefined,
 		oneDayAgo,
-		20,
+		limitPerCategory,
 	);
 
 	return {
@@ -97,12 +98,12 @@ async function getHackernews() {
 	await initLogger();
 
 	const fsDelivery = new FSDelivery(
-		"/Users/2ruesid/workbench/notes/tech-digest",
+		Config.DIGEST_FS_DELIVERY_LOCATION,
 		"markdown",
 	);
 
 	const discordDelivery = new DiscordDelivery(
-		Bun.env.DISCORD_WEBHOOK ?? "",
+		Config.DISCORD_WEBHOOK,
 		"markdown",
 	);
 

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
+import { cliLogger } from "@shared/logger";
 import { fetch } from "bun";
-import { cliLogger } from "./logger";
 
 export type DeliveryFormat = "markdown" | "plain";
 

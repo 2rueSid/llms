@@ -26,6 +26,16 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+
+		"baseUrl": ".",
+		"paths": {
+			"@src": ["src/index.ts"],
+			"@src/*": ["src/*"],
+			"@shared": ["shared/index.ts"],
+			"@shared/*": ["shared/*"],
+			"@lib": ["lib/index.ts"],
+			"@lib/*": ["lib/*"]
+		}
 	}
 }

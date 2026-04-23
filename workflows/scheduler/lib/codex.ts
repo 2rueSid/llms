@@ -1,6 +1,5 @@
 import { Codex, type UserInput } from "@openai/codex-sdk";
-import type { ZodType } from "zod";
-import { schedulerLogger } from "./logger";
+import { schedulerLogger } from "@shared/logger";
 
 const codex = new Codex();
 

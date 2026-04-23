@@ -1,11 +1,14 @@
 import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
 import { prettyFormatter } from "@logtape/pretty";
+import { Config } from "@shared/config";
 
-const SCHEDULER_LOGGER = "scheduler";
-const TECH_DIGEST_LOGGER = "tech-digest";
-const DATABASE_LOGGER = "database";
-const CLI_LOGGER = "cli";
-const REMINDER_LOGGER = "reminder";
+const {
+	SCHEDULER_LOGGER,
+	TECH_DIGEST_LOGGER,
+	DATABASE_LOGGER,
+	CLI_LOGGER,
+	REMINDER_LOGGER,
+} = Config;
 
 export const initLogger = async () =>
 	await configure({
