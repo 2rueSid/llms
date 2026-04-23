@@ -469,166 +469,48 @@
       "metaDescription": "",
       "metaTitle": "The Battle for Wesnoth"
     }
-  ]
-}
+  ],
+  "mails": [
+    {
+      "subject": "OpenAI workspace agents 🤝, Google Workspace Intelligence 🌐, Qwen3.6-27B 🤖",
+      "body": "TLDR AI 2026-04-23\n\nHEADLINES & LAUNCHES\n\nINTRODUCING WORKSPACE AGENTS IN CHATGPT (9 MINUTE READ) [https://openai.com/blog/workspace-agents]\n\nOpenAI introduced workspace agents in ChatGPT, allowing teams to create shared AI agents for complex tasks and workflows.\n\nGOOGLE WORKSPACE GETS AI INTELLIGENCE FEATURES [https://workspace.google.com/blog/workspace-ai]\n\nGoogle announced deep AI integration across Workspace apps, including smart compose, summarization, and meeting assistants.\n\nQWEN3.6-27B RELEASED [https://github.com/QwenLM/Qwen]\n\nAlibaba released Qwen3.6-27B, a new open-source large language model with strong multilingual performance.",
+      "from": "TLDR AI <dan@tldrnewsletter.com>"
+    },
+    {
+      "subject": "This Week in Rust #547",
+      "body": "Highlights this week:\n- Rust 1.77 released with new async features [https://blog.rust-lang.org/2026/04/20/Rust-1.77.html]\n- New crate spotlight: tokio-stream improvements [https://github.com/tokio-rs/tokio]\n- RFC accepted: async closures stabilization [https://github.com/rust-lang/rust/pull/12345]",
+      "from": "This Week in Rust <hello@this-week-in-rust.org>"
+    }
+  ]}
 ```
 
 Note: In the current payload version, each post also includes `ogUrl` (the Hacker News item link).
 
 ## Example Output
 
-```markdown
-# 🗞️ Tech Digest
-
-## 🚀 Top Posts by Topic
-
-### 🦀 Rust
-
-- [Show HN: Rocky and Caveman Speak in Claurst CLI Save Big Token Amaze Amaze Amaze](https://github.com/Kuberwastaken/claurst)
-  _kuberwastaken · 5 points · 1 comment · Rust · Show HN · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47661328)
-  A terminal coding agent project in Rust.
-
-- [Skunk: a Rust based language that compiles to Go](https://news.ycombinator.com/item?id=47670854)
-  _stickynotememo · 2 points · 2 comments · Rust · Story · Apr 7, 2026_
-  [post url](https://news.ycombinator.com/item?id=47670854)
-  A Rust-related language experiment that targets Go output.
-
-- [Rust CLI Toy](https://github.com/smbcloudXYZ/smbcloud-cli)
-  _kampak212 · 2 points · 0 comments · Rust · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47667265)
-  A small Rust CLI project hosted on GitHub.
-
-- [Show HN: Molchanica. Structural bio GUI / Rust tools](https://github.com/David-OConnor/molchanica)
-  _the\_\_alchemist · 1 point · 2 comments · Rust · Show HN · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47662280)
-  A protein and molecule viewer/editor with Rust tooling.
-
-- [CricketBrain: Neuromorphic signal processor in Rust (0.175us/step, 944 bytes)](https://github.com/BEKO2210/cricket-brain)
-  _B_to_the_Kiss · 1 point · 1 comment · Rust · Story · Apr 7, 2026_
-  [post url](https://news.ycombinator.com/item?id=47672735)
-  A biomorphic AI inference engine inspired by cricket auditory neuroscience.
-
-- [Show HN: TUI Settlers of Catan built with Llamafile and Bonsai PrismML Models](https://github.com/mozilla-ai/settl)
-  _river_otter · 1 point · 0 comments · Rust · Show HN · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47661938)
-  A Rust-written terminal settlement game.
-
-### ☁️ AWS
-
-- [Launch HN: Freestyle – Sandboxes for Coding Agents](https://www.freestyle.sh/)
-  _benswerd · 291 points · 149 comments · AWS · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47663147)
-  Unified infrastructure for AI-generated code with Git, VMs, deployments, and execution.
-
-- [After 20 years I turned off Google Adsense for my websites (2025)](https://blog.ericgoldman.org/archives/2025/06/after-20-years-i-turned-off-google-adsense-for-my-websites.htm)
-  _datadrivenangel · 198 points · 129 comments · AWS · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47668727)
-  A retrospective on shutting down AdSense after two decades.
-
-- [Ask HN: How do you handle marketing as a solo technical founder?](https://news.ycombinator.com/item?id=47667504)
-  _lazarkap · 95 points · 72 comments · AWS · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47667504)
-  A discussion about marketing execution for solo technical founders.
-
-- [Show HN: QuickMailBites – email client that reads your AWS S3 bucket](https://github.com/bonskari/quickmailbites)
-  _mike_strings872 · 3 points · 2 comments · AWS · Show HN · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47666644)
-  An email client concept centered on reading from an AWS S3 bucket.
-
-- [P – Formal Modeling and Analysis of Distributed Systems from AWS](https://p-org.github.io/P/)
-  _polskibus · 1 point · 0 comments · AWS · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47663791)
-  A language and framework for modular, safe distributed-systems modeling.
-
-### 🇺🇦 Ukraine
-
-- [The frontline is like Terminator: fighting robots give Ukraine hope in war](https://www.theguardian.com/world/2026/apr/04/fighting-robots-give-ukraine-hope-in-war-with-russia)
-  _tanelpoder · 11 points · 0 comments · Ukraine · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47663564)
-  Reporting on how unmanned ground vehicles are increasingly used at the frontline.
-
-- [Former CIA director: 'Russia no longer has the upper hand' in Ukraine war](https://thehill.com/policy/defense/5818227-david-petraeus-ukraine-russia-war/)
-  _doener · 9 points · 1 comment · Ukraine · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47668437)
-  Commentary on the war's momentum from a former CIA director.
-
-- [A look at Ukraine's high-powered military electric scooters on the front lines](https://electrek.co/2026/04/06/a-closer-look-at-ukraines-high-powered-military-electric-scooters-on-the-front-lines/)
-  _breve · 2 points · 0 comments · Ukraine · Story · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47664268)
-  A closer look at military use of high-powered electric scooters.
-
-## 🌟 Most Popular on HN
-
-Merged leaderboard of popular showcases and stories, deduplicated by post id.
-
-- [Show HN: Ghost Pepper – Local hold-to-talk speech-to-text for macOS](https://github.com/matthartman/ghost-pepper)
-  _MattHart88 · 410 points · 185 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47666024)
-  A local macOS hold-to-talk speech-to-text app using WhisperKit and local LLM cleanup.
-
-- [Show HN: GovAuctions lets you browse government auctions at once](https://www.govauctions.app/)
-  _player_piano · 291 points · 82 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47662945)
-  A unified way to browse government surplus auctions.
-
-- [Show HN: Hippo, biologically inspired memory for AI agents](https://github.com/kitfunso/hippo-memory)
-  _kitfunso · 110 points · 23 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47667672)
-  A zero-dependency memory layer for AI agents.
-
-- [Show HN: TTF-DOOM – A raycaster running inside TrueType font hinting](https://github.com/4RH1T3CT0R7/ttf-doom)
-  _4RH1T3CT0R · 57 points · 12 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47665685)
-  A raycasting engine implemented inside a TrueType hinting VM.
-
-- [Show HN: Weird Clocks](https://clocks.specr.net)
-  _vunderba · 44 points · 13 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47662429)
-  A custom collection of unusual clock designs.
-
-- [Issue: Claude Code is unusable for complex engineering tasks with Feb updates](https://github.com/anthropics/claude-code/issues/42796)
-  _StanAngeloff · 1167 points · 636 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47660925)
-  A high-engagement issue discussing quality regressions in complex engineering workflows.
-
-- [I won't download your app. The web version is a-ok](https://www.0xsid.com/blog/wont-download-your-app)
-  _ssiddharth · 883 points · 519 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47661439)
-  An essay arguing that web experiences should be first-class.
-
-- [The cult of vibe coding is dogfooding run amok](https://bramcohen.com/p/the-cult-of-vibe-coding-is-insane)
-  _drob518 · 572 points · 466 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47664912)
-  A critique of vibe-coding culture and quality trade-offs.
-
-- [A cryptography engineer's perspective on quantum computing timelines](https://words.filippo.io/crqc-timeline/)
-  _thadt · 502 points · 200 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47662234)
-  A practical timeline assessment for cryptographically relevant quantum computers.
-
-- [Battle for Wesnoth: open-source, turn-based strategy game](https://www.wesnoth.org)
-  _akyuu · 501 points · 143 comments · Apr 6, 2026_
-  [post url](https://news.ycombinator.com/item?id=47664186)
-  A front-page spotlight on the long-running open-source strategy game.
-
-## 📊 Quick Stats
-
-- Raw posts processed: 36
-- Unique posts after deduplication: 33
-- Topic posts before relevance filtering: 23
-- Topic posts after relevance filtering: 14
-- Topics rendered in `Top Posts by Topic`: 3
-- Filtered as low-signal off-topic: 9
-- Most Popular Showcases input: 5
-- Most Popular Stories input: 5
-- Most Popular on HN rendered: 10/10
+```json
+{
+  "digest": "# 🗞️ Tech Digest\n\n## 🚀 Top Posts by Topic\n\n### 🦀 Rust\n\n- [Show HN: Rocky and Caveman Speak in Claurst CLI Save Big Token Amaze Amaze Amaze](https://github.com/Kuberwastaken/claurst)\n  _kuberwastaken · 5 points · 1 comment · Rust · Show HN · Apr 6, 2026_\n  [post url](https://news.ycombinator.com/item?id=47661328)\n  A terminal coding agent project in Rust.\n\n  📬 **This Week in Rust #547** — Rust 1.77 released with async features, tokio-stream improvements, async closures RFC accepted.\n  _From: This Week in Rust <hello@this-week-in-rust.org>_\n\n- [Skunk: a Rust based language that compiles to Go](https://news.ycombinator.com/item?id=47670854)\n  _stickynotememo · 2 points · 2 comments · Rust · Story · Apr 7, 2026_\n  [post url](https://news.ycombinator.com/item?id=47670854)\n  A Rust-related language experiment that targets Go output.\n\n- [Rust CLI Toy](https://github.com/smbcloudXYZ/smbcloud-cli)\n  _kampak212 · 2 points · 0 comments · Rust · Story · Apr 6, 2026_\n  [post url](https://news.ycombinator.com/item?id=47667265)\n  A small Rust CLI project hosted on GitHub.\n\n### ☁️ AWS\n\n- [Launch HN: Freestyle – Sandboxes for Coding Agents](https://www.freestyle.sh/)\n  _benswerd · 291 points · 149 comments · AWS · Story · Apr 6, 2026_\n  [post url](https://news.ycombinator.com/item?id=47661538)\n  Sandboxed environments for running coding agents in production.\n\n## 🔥 Most Popular on HN\n\n- [Battle for Wesnoth: open-source, turn-based strategy game](https://www.wesnoth.org)\n  _akyuu · 501 points · 143 comments · Apr 6, 2026_\n  [post url](https://news.ycombinator.com/item?id=47664186)\n  A front-page spotlight on the long-running open-source strategy game.\n\n## 📬 Mail News\n\n- **OpenAI workspace agents 🤝, Google Workspace Intelligence 🌐, Qwen3.6-27B 🤖**\n  OpenAI introduced shared workspace agents in ChatGPT; Google added AI features across Workspace apps; Alibaba released Qwen3.6-27B open-source LLM.\n  _From: TLDR AI <dan@tldrnewsletter.com>_\n\n## 📊 Quick Stats\n\n- Raw posts processed: 36\n- Unique posts after deduplication: 33\n- Topic posts before relevance filtering: 23\n- Topic posts after relevance filtering: 14\n- Topics rendered in `Top Posts by Topic`: 3\n- Filtered as low-signal off-topic: 9\n- Most Popular Showcases input: 5\n- Most Popular Stories input: 5\n- Most Popular on HN rendered: 10/10\n- Mails input: 2\n- Mails rendered in topics: 1\n- Mails rendered in Mail News: 1\n- GitHub URLs collected: 8",
+  "gh_urls": [
+    "https://github.com/Kuberwastaken/claurst",
+    "https://github.com/smbcloudXYZ/smbcloud-cli",
+    "https://github.com/David-OConnor/molchanica",
+    "https://github.com/BEKO2210/cricket-brain",
+    "https://github.com/mozilla-ai/settl",
+    "https://github.com/QwenLM/Qwen",
+    "https://github.com/tokio-rs/tokio",
+    "https://github.com/rust-lang/rust/pull/12345"
+  ]
+}
 ```
 
 ## Notes
 
-- Topic-level stories and showcases are merged into a single section.
+- Topic-level stories and showcases are merged into a single section, with related mail items appended within each topic subsection.
 - Low-signal items with weak topical relevance are removed from topic buckets.
 - Leaderboards are merged (`mostPopularShowcases` + `mostPopularStories`) and deduplicated by id.
 - Each rendered item includes a dedicated Hacker News link using `ogUrl` as `[post url](ogUrl)`.
 - Summaries are generated only from payload fields (`metaDescription`, `metaTitle`, `title`, and metadata).
+- Mails already rendered in a topic section are NOT repeated in the Mail News section.
+- Non-English mails are kept in their original language.
+- The output is always a JSON object with `digest` (Markdown string) and `gh_urls` (deduplicated GitHub URL array).

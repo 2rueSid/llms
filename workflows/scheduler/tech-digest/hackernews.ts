@@ -11,9 +11,9 @@
 //
 
 import { stringify as querystring } from "node:querystring";
+import { getMetadata } from "@lib/html-page-metadata";
 import { Config } from "@shared/config";
 import { fetch } from "bun";
-import { getMetadata } from "./fetch-page-metadata";
 
 const HN_API_BASE_URL = Config.HN_API_BASE_URL;
 

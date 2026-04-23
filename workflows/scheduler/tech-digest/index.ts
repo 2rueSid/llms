@@ -2,24 +2,33 @@ import { streamResponse } from "@lib/codex";
 import { type Delivery, DiscordDelivery, FSDelivery } from "@lib/delivery";
 import { Config } from "@shared/config";
 import { initLogger, techDigestLogger } from "@shared/logger";
-import { fetchPosts, fetchPostsForTopics } from "./fetch-hackernews";
+import z from "zod";
+import { getMails } from "./gmail";
+import { fetchPosts, fetchPostsForTopics } from "./hackernews";
+
+const outputSchema = z.object({
+	gh_urls: z.array(z.string()),
+	digest: z.string(),
+});
 
 export async function techDigest(delivery: Delivery[]) {
 	const hnData = await getHackernews();
+	const mailData = await getMails();
 
-	const totalLen = Object.values(hnData).reduce(
+	const totalLenHN = Object.values(hnData).reduce(
 		(acc, v) => acc + v?.length || 0,
 		0,
 	);
+	const totalLenMail = mailData.length;
 
-	console.log(hnData);
-
-	if (!totalLen) {
+	if (!totalLenHN && !totalLenMail) {
 		techDigestLogger.warning("No news found from Hacker News");
+		techDigestLogger.warning("No mails found by that query");
 		return;
 	}
 
-	techDigestLogger.info(`Total articles to process: ${totalLen}`);
+	techDigestLogger.info(`Total articles to process: ${totalLenHN}`);
+	techDigestLogger.info(`Total Mail to process ${mailData}`);
 
 	techDigestLogger.info(
 		`Tech Digest Data: mostPopularShowcases: ${hnData.mostPopularShowcases.length}; mostPopularStories: ${hnData.mostPopularStories.length}; showcasesPerTopic: ${hnData.showcasesPerTopic.length}; storiesPerTopic: ${hnData.storiesPerTopic.length}`,
@@ -28,9 +37,12 @@ export async function techDigest(delivery: Delivery[]) {
 	const { data } = await streamResponse([
 		{
 			type: "text",
-			text: `use ${Config.TECH_DIGEST_SKILL_NAME} SKILL to create a tech-digest. RETURN MARKDOWN FORMATTED DIGEST.`,
+			text: `use ${Config.TECH_DIGEST_SKILL_NAME} SKILL to create a tech-digest. RETURN A VALID JSON ONLY`,
 		},
-		{ type: "text", text: JSON.stringify(hnData) },
+		{
+			type: "text",
+			text: JSON.stringify({ ...hnData, mails: mailData }),
+		},
 	]);
 
 	if (!data) {
@@ -38,11 +50,16 @@ export async function techDigest(delivery: Delivery[]) {
 		return;
 	}
 
-	techDigestLogger.info(`Digest generated: ${data.length} characters`);
+	console.log(data);
+	const parsedData = outputSchema.parse(JSON.parse(data));
+
+	techDigestLogger.info(
+		`Digest generated: ${parsedData.digest.length} characters`,
+	);
 
 	for await (const transport of delivery) {
 		const outputName = `tech-digest-${new Date().toISOString().slice(0, 10)}`;
-		const delivered = await transport.deliver(data, outputName);
+		const delivered = await transport.deliver(parsedData.digest, outputName);
 		if (!delivered) {
 			techDigestLogger.error("Failed to write digest to destination");
 			continue;
