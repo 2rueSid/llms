@@ -114,8 +114,3 @@ function buildQuery(emails: string[], timeRange: string) {
 		.join(" OR ")
 		.trim()} newer_than:${timeRange}`;
 }
-
-(async () => {
-	const r = await getMails();
-	console.log(r);
-})();

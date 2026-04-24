@@ -50,8 +50,51 @@ type HNPost = {
 	metaDescription?: string;
 };
 
+export async function getHackernews() {
+	const topics = Config.DIGEST_TOPICS;
+
+	const oneDayAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
+
+	const limitPerTopic = Config.LIMIT_PER_TOPIC;
+	const limitPerCategory = Config.LIMIT_PER_CATEGORY;
+
+	const storiesPerTopic = await fetchPostsForTopics(
+		"story",
+		topics,
+		oneDayAgo,
+		limitPerTopic,
+	);
+
+	const showcasesPerTopic = await fetchPostsForTopics(
+		"show_hn",
+		topics,
+		oneDayAgo,
+		limitPerTopic,
+	);
+	const mostPopularStories = await fetchPosts(
+		"story",
+		undefined,
+		oneDayAgo,
+		limitPerCategory,
+	);
+
+	const mostPopularShowcases = await fetchPosts(
+		"show_hn",
+		undefined,
+		oneDayAgo,
+		limitPerCategory,
+	);
+
+	return {
+		storiesPerTopic,
+		showcasesPerTopic,
+		mostPopularShowcases,
+		mostPopularStories,
+	};
+}
+
 // Sorted by relevance, then points, then number of comments
-export async function fetchPosts(
+async function fetchPosts(
 	tag: HNTag,
 	query?: string,
 	nOfDaysAgoUnix?: number,
@@ -89,7 +132,7 @@ export async function fetchPosts(
 	return posts;
 }
 
-export async function fetchPostsForTopics(
+async function fetchPostsForTopics(
 	tag: HNTag,
 	topicList: readonly string[],
 	nOfDaysAgoUnix?: number,
