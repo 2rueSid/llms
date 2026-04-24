@@ -1,7 +1,7 @@
 import { command, exec } from "@lib/cli";
 import { cliLogger, initLogger } from "@shared/logger";
 import { Task, withDatabase } from "./database";
-import { runSchedulerLoop } from "./scheduler";
+import { schedulerLoop } from "./scheduler";
 
 const HELP_TEXT = `Scheduler DB CLI
 
@@ -9,7 +9,7 @@ Commands:
   help
     Show this help output.
 
-  add-task --name <value> --command <value> --cron <value>
+  add-task --name <value> --worker-path <value> --cron <value>
     Create a task record.
     Defaults: id auto-generated, enabled=1, next_execution=null, last_execution=null.
 
@@ -41,12 +41,12 @@ command("help", async () => {
 });
 
 command("loop", async () => {
-	await runSchedulerLoop();
+	await schedulerLoop();
 });
 
 command(
 	"add-task",
-	async ({ name, command: taskCommand, cron }) => {
+	async ({ name, "worker-path": workerPath, cron }) => {
 		cliLogger.info(`Starting 'add-task' for '${name}'`);
 		const taskId = crypto.randomUUID();
 
@@ -55,7 +55,7 @@ command(
 				Task.parse({
 					id: taskId,
 					name,
-					command: taskCommand,
+					worker_path: workerPath,
 					enabled: 1,
 					cron,
 					next_execution: Bun.cron.parse(cron)?.toISOString(),
@@ -74,9 +74,9 @@ command(
 			description: "Human-readable task name.",
 		},
 		{
-			name: "command",
+			name: "worker-path",
 			required: true,
-			description: "Shell command to execute for the task.",
+			description: "Absolute path to the task module.",
 		},
 		{
 			name: "cron",

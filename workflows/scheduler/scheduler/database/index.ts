@@ -27,7 +27,7 @@ const createTables = (db: Database) => {
 		CREATE TABLE IF NOT EXISTS tasks (
 			id TEXT PRIMARY KEY,
 			name TEXT NOT NULL,
-			command TEXT NOT NULL,
+			worker_path TEXT NOT NULL,
 			enabled INTEGER NOT NULL DEFAULT 1,
 			cron TEXT NOT NULL,
 			next_execution TEXT,
@@ -56,17 +56,17 @@ export const initDatabase = () => {
 	databaseLogger.debug("Database tables are ready");
 
 	const addTaskStmt = db.query(
-		`INSERT INTO tasks (id, name, command, enabled, cron, next_execution, last_execution)
+		`INSERT INTO tasks (id, name, worker_path, enabled, cron, next_execution, last_execution)
 		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
 	);
 	const listTasksStmt = db.query(
-		"SELECT id, name, command, enabled, cron, next_execution, last_execution FROM tasks",
+		"SELECT id, name, worker_path, enabled, cron, next_execution, last_execution FROM tasks",
 	);
 	const listExecutionHistoryStmt = db.query(
 		"SELECT id, task_id, execution_date, success FROM execution_history",
 	);
 	const listDueTasksStmt = db.query(
-		`SELECT id, name, command, enabled, cron, next_execution, last_execution
+		`SELECT id, name, worker_path, enabled, cron, next_execution, last_execution
 		 FROM tasks
 		 WHERE enabled = 1
 		   AND next_execution IS NOT NULL
@@ -123,7 +123,7 @@ export const initDatabase = () => {
 				addTaskStmt.run(
 					task.id,
 					task.name,
-					task.command,
+					task.worker_path,
 					task.enabled,
 					task.cron,
 					task.next_execution,

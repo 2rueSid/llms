@@ -5,7 +5,7 @@ const sqliteBoolean = z.int().min(0).max(1);
 export const Task = z.object({
 	id: z.uuidv4(),
 	name: z.string(),
-	command: z.string(),
+	worker_path: z.string(),
 	enabled: sqliteBoolean.default(1),
 	cron: z.string(),
 	next_execution: z.string().datetime().nullable().default(null),

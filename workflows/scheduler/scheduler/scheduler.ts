@@ -1,14 +1,12 @@
 import { Config } from "@shared/config";
 import { schedulerLogger } from "@shared/logger";
-import { sleep } from "bun";
 import type { ExecutionHistory, Task } from "./database";
 import { withDatabase } from "./database";
 
-const INTERVAL_MS = Config.RUN_INTERVAL;
 const TASK_TIMEOUT = Config.TASK_TIMEOUT;
-const RunningTasks = new Map<string, Promise<void>>();
+const RunningTasks = new Map<string, Worker>();
 
-export async function runSchedulerLoop() {
+export async function schedulerLoop() {
 	const controller = new AbortController();
 
 	const stop = () => {
@@ -23,32 +21,31 @@ export async function runSchedulerLoop() {
 
 	schedulerLogger.info("Scheduler initialized, starting event loop");
 
-	try {
-		while (!controller.signal.aborted) {
-			const startedMs = Date.now();
-			const startedAt = new Date();
-
-			try {
-				await processDueTasks(startedAt, controller.signal);
-			} catch (error) {
-				schedulerLogger.error(`Scheduler tick failed: ${error}`);
-			}
-
-			const elapsed = Date.now() - startedMs;
-			const wait = Math.max(0, INTERVAL_MS - elapsed);
-			await sleep(wait);
+	const intervalId = setInterval(async () => {
+		try {
+			await processDueTasks(new Date(), controller.signal);
+		} catch (error) {
+			schedulerLogger.error(`Scheduler tick failed: ${error}`);
 		}
-	} finally {
-		process.off("SIGINT", stop);
-		process.off("SIGTERM", stop);
+	}, Config.RUN_INTERVAL);
 
-		await Promise.allSettled([...RunningTasks.values()]);
+	const { promise, resolve } = Promise.withResolvers<void>();
+	controller.signal.addEventListener("abort", () => resolve(), { once: true });
+	await promise;
 
-		schedulerLogger.info("Scheduler loop stopped");
-	}
+	clearInterval(intervalId);
+	for (const worker of RunningTasks.values()) worker.terminate();
+	RunningTasks.clear();
+
+	process.off("SIGINT", stop);
+	process.off("SIGTERM", stop);
+
+	schedulerLogger.info("Scheduler loop stopped");
 }
 
 const processDueTasks = async (now: Date, signal: AbortSignal) => {
+	if (signal.aborted) return;
+
 	const nowIso = now.toISOString();
 	const dueTasks = await withDatabase("scheduler-list-due-tasks", (db) =>
 		db.listDueTasks(nowIso),
@@ -70,27 +67,19 @@ const processDueTasks = async (now: Date, signal: AbortSignal) => {
 			continue;
 		}
 
-		const promise = runClaimedTask(task, signal)
-			.catch((error) => {
-				schedulerLogger.error(
-					`Task '${task.id}' failed unexpectedly: ${error}`,
-				);
-			})
-			.finally(() => {
-				RunningTasks.delete(task.id);
-			});
-
-		RunningTasks.set(task.id, promise);
+		runClaimedTask(task).catch((error) => {
+			schedulerLogger.error(`Task '${task.id}' failed unexpectedly: ${error}`);
+		});
 	}
 };
 
-async function runClaimedTask(task: Task, signal: AbortSignal): Promise<void> {
+async function runClaimedTask(task: Task): Promise<void> {
 	const executionTime = new Date();
 	const executionIso = executionTime.toISOString();
 	let success = false;
 
 	try {
-		success = await executeTask(task, signal);
+		success = await runTaskInWorker(task);
 	} catch (error) {
 		schedulerLogger.error(
 			`Task '${task.id}' crashed during execution: ${error}`,
@@ -114,40 +103,48 @@ async function runClaimedTask(task: Task, signal: AbortSignal): Promise<void> {
 	);
 }
 
-async function executeTask(task: Task, signal: AbortSignal): Promise<boolean> {
+function runTaskInWorker(task: Task): Promise<boolean> {
 	schedulerLogger.info(`Executing task '${task.id}' (${task.name})`);
 
-	const proc = Bun.spawn({
-		cmd: ["/bin/sh", "-lc", task.command],
-		stdout: "pipe",
-		stderr: "pipe",
-		signal,
-		timeout: TASK_TIMEOUT,
+	const worker = new Worker(new URL("./worker-runner.ts", import.meta.url));
+	RunningTasks.set(task.id, worker);
+
+	return new Promise<boolean>((resolve) => {
+		const timeoutId = setTimeout(() => {
+			schedulerLogger.error(
+				`Task '${task.id}' timed out after ${TASK_TIMEOUT}ms`,
+			);
+			worker.terminate();
+			RunningTasks.delete(task.id);
+			resolve(false);
+		}, TASK_TIMEOUT);
+
+		worker.onmessage = (
+			e: MessageEvent<{ success: boolean; error?: string }>,
+		) => {
+			clearTimeout(timeoutId);
+			RunningTasks.delete(task.id);
+			worker.terminate();
+
+			const { success, error } = e.data;
+			if (success) {
+				schedulerLogger.info(`Task '${task.id}' completed successfully`);
+			} else {
+				schedulerLogger.error(`Task '${task.id}' failed: ${error}`);
+			}
+			resolve(success);
+		};
+
+		worker.onerror = (e: ErrorEvent) => {
+			clearTimeout(timeoutId);
+			RunningTasks.delete(task.id);
+			worker.terminate();
+			schedulerLogger.error(`Task '${task.id}' worker error: ${e.message}`);
+			resolve(false);
+		};
+
+		worker.postMessage({ taskId: task.id, workerPath: task.worker_path });
 	});
-
-	const [exitCode, stdout, stderr] = await Promise.all([
-		proc.exited,
-		proc.stdout.text(),
-		proc.stderr.text(),
-	]);
-
-	if (stdout.trim()) {
-		schedulerLogger.debug(`Task '${task.id}' stdout: ${stdout.trim()}`);
-	}
-
-	if (stderr.trim()) {
-		schedulerLogger.warn(`Task '${task.id}' stderr: ${stderr.trim()}`);
-	}
-
-	if (exitCode !== 0) {
-		schedulerLogger.error(
-			`Task '${task.id}' failed with exit code ${exitCode}`,
-		);
-		return false;
-	}
-
-	schedulerLogger.info(`Task '${task.id}' completed successfully`);
-	return true;
 }
 
 function computeNextExecution(task: Task, from: Date): string | null {
