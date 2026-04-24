@@ -75,7 +75,7 @@ export async function getMails(): Promise<Mail[]> {
 
 		return details
 			.filter((mail) => mail.status === "fulfilled")
-			.map((mail) => mail.value) as Mail[];
+			.map((mail) => mail.value!) satisfies Mail[];
 	} catch (e) {
 		techDigestLogger.error(
 			`Error while authenticating GMail. Check refresh token`,
