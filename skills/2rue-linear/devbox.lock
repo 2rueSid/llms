@@ -1,0 +1,133 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "_1password-cli@latest": {
+      "last_modified": "2026-08-27T07:16:00Z",
+      "resolved": "github:NixOS/nixpkgs/c27cdad491a991b11ed731760aa2ef8db0cb0410#_1password-cli",
+      "source": "devbox-search",
+      "version": "2.39.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/87834ila94k21hi9nrjgpi7qzr5j5h7j-1password-cli-2.39.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/87834ila94k21hi9nrjgpi7qzr5j5h7j-1password-cli-2.39.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/v5w4qlf6kblba10a9r72r70zmahvgfd5-1password-cli-2.39.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/v5w4qlf6kblba10a9r72r70zmahvgfd5-1password-cli-2.39.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/i5c6gprask35rmgc369mzyjlpx2ks1jx-1password-cli-2.39.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/i5c6gprask35rmgc369mzyjlpx2ks1jx-1password-cli-2.39.0"
+        }
+      }
+    },
+    "bun@latest": {
+      "last_modified": "2026-08-27T07:16:00Z",
+      "resolved": "github:NixOS/nixpkgs/c27cdad491a991b11ed731760aa2ef8db0cb0410#bun",
+      "source": "devbox-search",
+      "version": "1.3.13",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/r4svrxgw5kys9g187dzcaj8yvc6dzm65-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/r4svrxgw5kys9g187dzcaj8yvc6dzm65-bun-1.3.13"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/p9a0b8bh0iv9g1qszfvi9n2k7aj7ypyh-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/p9a0b8bh0iv9g1qszfvi9n2k7aj7ypyh-bun-1.3.13"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/wn9cggwqflvqryxxb9xinl9iygndm8d9-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/wn9cggwqflvqryxxb9xinl9iygndm8d9-bun-1.3.13"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/gzh2rx2sjwra135my0jw3va49hm7z4vf-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/gzh2rx2sjwra135my0jw3va49hm7z4vf-bun-1.3.13"
+        }
+      }
+    },
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2026-09-19T18:56:16Z",
+      "resolved": "github:NixOS/nixpkgs/79b35bf0bda5cd110f856aa5b5b2c5ba4460dbf5?lastModified=1789844176"
+    },
+    "secretspec@latest": {
+      "last_modified": "2026-08-27T07:16:00Z",
+      "resolved": "github:NixOS/nixpkgs/c27cdad491a991b11ed731760aa2ef8db0cb0410#secretspec",
+      "source": "devbox-search",
+      "version": "0.19.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1y6fasig034gw0nnsbs50assl8v5sx0y-secretspec-0.19.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1y6fasig034gw0nnsbs50assl8v5sx0y-secretspec-0.19.1"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/13b9y7n29yr7rj6k0ih3ry9jkzb5w5qc-secretspec-0.19.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/13b9y7n29yr7rj6k0ih3ry9jkzb5w5qc-secretspec-0.19.1"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/444nljqa5vzbdicin6lci4n8zrckdh1x-secretspec-0.19.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/444nljqa5vzbdicin6lci4n8zrckdh1x-secretspec-0.19.1"
+        }
+      }
+    }
+  }
+}

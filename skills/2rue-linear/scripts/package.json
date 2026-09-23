@@ -1,0 +1,21 @@
+{
+	"name": "2rue-linear",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"test": "bun test",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^2.5.14",
+		"@linear/sdk": "^95.1.0",
+		"bunicl": "git+https://github.com/2rueSid/bunicl.git"
+	}
+}

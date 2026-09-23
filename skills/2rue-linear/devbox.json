@@ -1,0 +1,14 @@
+{
+	"$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.18.3/.schema/devbox.schema.json",
+	"packages": ["secretspec@latest", "bun@latest", "_1password-cli@latest"],
+	"shell": {
+		"init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
+		"scripts": {
+			"setup": "bun install --cwd scripts --frozen-lockfile",
+			"typecheck": "bun run --cwd scripts typecheck",
+			"test": "bun run --cwd scripts test",
+			"injected": "secretspec run -- \"$@\"",
+			"linear": "secretspec run -- bun run scripts/index.ts \"$@\""
+		}
+	}
+}
