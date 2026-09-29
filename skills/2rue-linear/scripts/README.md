@@ -4,8 +4,8 @@ Run from this skill's root directory through Devbox:
 
 ```sh
 devbox run setup
-devbox run linear -- projects-list
-devbox run linear -- tickets-list --project "$PROJECT_ID"
+devbox run linear -- projects list
+devbox run linear -- tickets list --project "$PROJECT_ID"
 ```
 
 The CLI uses `@linear/sdk` and the local `bunicl` checkout declared in

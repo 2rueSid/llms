@@ -8,7 +8,6 @@
         "@biomejs/biome": "^2.5.14",
         "@linear/sdk": "^95.1.0",
         "bunicl": "git+https://github.com/2rueSid/bunicl.git",
-        "bunicl": "git+https://github.com/2rueSid/bunicl.git",
       },
       "devDependencies": {
         "@types/bun": "latest",

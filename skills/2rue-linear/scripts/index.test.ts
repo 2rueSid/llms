@@ -34,21 +34,14 @@ test("get, edit, and delete refuse a ticket from another project without writing
 		apiUrl: server.url.toString(),
 	});
 	try {
-		for (const [command, ...fields] of [
-			["tickets-get"],
-			["tickets-edit", "--title", "Changed"],
-			["tickets-delete", "--yes"],
+		for (const command of [
+			["tickets", "get"],
+			["tickets", "edit", "--title", "Changed"],
+			["tickets", "delete", "--yes"],
 		]) {
 			expect(
 				await runCli(
-					[
-						command!,
-						"--project",
-						"selected-project",
-						"--ticket",
-						"ENG-123",
-						...fields,
-					],
+					[...command, "--project", "selected-project", "--ticket", "ENG-123"],
 					() => client,
 				),
 			).toBe(2);
@@ -57,4 +50,16 @@ test("get, edit, and delete refuse a ticket from another project without writing
 	} finally {
 		await server.stop(true);
 	}
+});
+
+test("nested commands reject missing required options before creating a client", async () => {
+	let clients = 0;
+
+	expect(
+		await runCli(["tickets", "get"], () => {
+			clients++;
+			throw new Error("client should not be created");
+		}),
+	).toBe(2);
+	expect(clients).toBe(0);
 });
